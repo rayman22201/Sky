@@ -64,6 +64,7 @@ macx {
     QMAKE_MACOSX_DEPLOYMENT_TARGET = 10.12
 
     QMAKE_CXXFLAGS += -std=c++11 -stdlib=libc++
+    LIBS += -L/usr/local/opt/openssl/lib -lssl -lcrypto
 }
 
 macx {
