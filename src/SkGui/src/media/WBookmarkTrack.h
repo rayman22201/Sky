@@ -17,31 +17,25 @@
 #ifndef WBOOKMARKTRACK_H
 #define WBOOKMARKTRACK_H
 
-// Qt includes
-#include <QUrl>
-
 // Sk includes
-#include <WAbstractPlaylist>
-#include <WTrackNet>
+#include <WPlaylist>
 
 #ifndef SK_NO_BOOKMARKTRACK
 
 // Forward declarations
 class WBookmarkTrackPrivate;
-class WAbstractTrack;
-class WTabTrack;
 
-class SK_GUI_EXPORT WBookmarkTrack : public WPrivatable, public WAbstractPlaylistWatcher
+class SK_GUI_EXPORT WBookmarkTrack : public WPrivatable, public WPlaylistWatcher
 {
 public:
-    explicit WBookmarkTrack(const WAbstractTrack & track);
+    explicit WBookmarkTrack(const WTrack & track);
 
     WBookmarkTrack();
 
 public: // Interface
-    void setTrack(const WAbstractTrack & track);
+    void setTrack(const WTrack & track);
 
-    WTrackNet   toTrackNet () const;
+    WTrack      toTrack    () const;
     QVariantMap toTrackData() const;
 
     void save();
@@ -53,7 +47,7 @@ public: // Operators
 
     WBookmarkTrack & operator=(const WBookmarkTrack & other);
 
-protected: // WAbstractPlaylistWatcher reimplementation
+protected: // WPlaylistWatcher reimplementation
     /* virtual */ void endTracksInsert();
 
     /* virtual */ void beginTracksRemove(int first, int last);
@@ -78,14 +72,14 @@ public: // Properties
 
     QList<int> folderIds() const;
 
-    WAbstractPlaylist    * playlist() const;
-    const WAbstractTrack * track   () const;
+    WPlaylist    * playlist() const;
+    const WTrack * track   () const;
 
     QList<int> idPlaylist  () const;
     int        idTrack     () const;
     int        idFolderRoot() const;
 
-    WAbstractTrack::State state() const;
+    WTrack::State state() const;
 
     QUrl source() const;
 

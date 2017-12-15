@@ -375,15 +375,15 @@ WBackendNetQuery WBackendVimeo::createQuery(const QString & method,
             QUrl url("https://vimeo.com/search/page:1/sort:relevant/format:thumbnail");
 
 #ifdef QT_4
-            url.addQueryItem("type", "video");
-
             url.addQueryItem("q", q);
+
+            url.addQueryItem("type", "video");
 #else
             QUrlQuery urlQuery(url);
 
-            urlQuery.addQueryItem("type", "video");
-
             urlQuery.addQueryItem("q", q);
+
+            urlQuery.addQueryItem("type", "video");
 
             url.setQuery(urlQuery);
 #endif
@@ -448,8 +448,8 @@ WBackendNetQuery WBackendVimeo::createQuery(const QString & method,
     else if (method == "related" && label == "tracks")
     {
         query.url = "https://vimeo.com/" + q
-                           +
-                           "/collections/channels/sort:relevant/format:thumbnail";
+                    +
+                    "/collections/channels/sort:relevant/format:thumbnail";
 
         query.id = 2;
     }
@@ -532,7 +532,7 @@ WBackendNetTrack WBackendVimeo::extractTrack(const QByteArray       & data,
 
     QString quality = WControllerNetwork::extractJson(content, "videoQuality");
 
-    WTrackNet * track = &(reply.track);
+    WTrack * track = &(reply.track);
 
     track->setTitle(title);
     track->setCover(cover);
@@ -687,7 +687,7 @@ WBackendNetPlaylist WBackendVimeo::extractPlaylist(const QByteArray       & data
 
                 cover = d->extractCover(cover);
 
-                WTrackNet track("https://vimeo.com/" + id, WAbstractTrack::Default);
+                WTrack track("https://vimeo.com/" + id, WTrack::Default);
 
                 track.setTitle(title);
                 track.setCover(cover);
@@ -714,7 +714,7 @@ WBackendNetPlaylist WBackendVimeo::extractPlaylist(const QByteArray       & data
 
         cover = d->extractCover(cover);
 
-        WTrackNet track("https://vimeo.com/" + id, WAbstractTrack::Default);
+        WTrack track("https://vimeo.com/" + id, WTrack::Default);
 
         track.setTitle(title);
         track.setCover(cover);

@@ -47,7 +47,7 @@ public:
     void init();
 
 public: // Functions
-    void loadTrack(WTrackNet * track, const QString & json) const;
+    void loadTrack(WTrack * track, const QString & json) const;
 
     QString extractSource(const QString & json, const QString & quality) const;
 
@@ -70,7 +70,7 @@ void WBackendDailymotionPrivate::init() {}
 // Private functions
 //-------------------------------------------------------------------------------------------------
 
-void WBackendDailymotionPrivate::loadTrack(WTrackNet * track, const QString & json) const
+void WBackendDailymotionPrivate::loadTrack(WTrack * track, const QString & json) const
 {
     QString title = WControllerNetwork::extractJsonUtf8(json, "title");
     QString cover = WControllerNetwork::extractJson    (json, "thumbnail_url");
@@ -276,7 +276,7 @@ WBackendNetPlaylistInfo WBackendDailymotion::getPlaylistInfo(const QUrl & url) c
 
     if (source.startsWith("dailymotion.com/playlist/"))
     {
-        return WBackendNetPlaylistInfo(WLibraryItem::PlaylistNet,
+        return WBackendNetPlaylistInfo(WLibraryItem::Playlist,
                                        WControllerNetwork::extractUrlElement(source, 25));
     }
     else if (source.startsWith("dailymotion.com/user/"))
@@ -613,7 +613,7 @@ WBackendNetPlaylist WBackendDailymotion::extractPlaylist(const QByteArray       
         {
             QString source = WControllerNetwork::extractJson(string, "url");
 
-            WTrackNet track(source);
+            WTrack track(source);
 
             d->loadTrack(&track, string);
 
@@ -664,7 +664,7 @@ WBackendNetFolder WBackendDailymotion::extractFolder(const QByteArray       & da
             QString title = WControllerNetwork::extractJsonUtf8(string, "name");
             QString cover = WControllerNetwork::extractJson    (string, "thumbnail_url");
 
-            WLibraryFolderItem playlist(WLibraryItem::PlaylistNet, WLibraryItem::Default);
+            WLibraryFolderItem playlist(WLibraryItem::Playlist, WLibraryItem::Default);
 
             playlist.source = "http://www.dailymotion.com/playlist/" + id;
 

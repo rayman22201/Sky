@@ -19,7 +19,7 @@
 #ifndef SK_NO_BOOKMARKTRACK
 
 // Sk includes
-#include <WAbstractTrack>
+#include <WTrack>
 #include <WTabTrack>
 
 // Private includes
@@ -56,7 +56,7 @@ void WBookmarkTrackPrivate::init()
 
     idTrack = -1;
 
-    state = WAbstractTrack::Default;
+    state = WTrack::Default;
 
     duration = -1;
 
@@ -83,7 +83,7 @@ void WBookmarkTrackPrivate::setParentTab(WTabTrack * parent)
 
 //-------------------------------------------------------------------------------------------------
 
-void WBookmarkTrackPrivate::setPlaylist(WAbstractPlaylist * playlist)
+void WBookmarkTrackPrivate::setPlaylist(WPlaylist * playlist)
 {
     if (this->playlist == playlist) return;
 
@@ -127,7 +127,7 @@ void WBookmarkTrackPrivate::clearPlaylist()
 
 //-------------------------------------------------------------------------------------------------
 
-void WBookmarkTrackPrivate::setTrack(const WAbstractTrack & track)
+void WBookmarkTrackPrivate::setTrack(const WTrack & track)
 {
     this->track = &track;
 
@@ -176,7 +176,7 @@ void WBookmarkTrackPrivate::clearTrack()
 
 void WBookmarkTrackPrivate::updateTrackPointer()
 {
-    const WAbstractTrack * track = playlist->trackPointerFromId(idTrack);
+    const WTrack * track = playlist->trackPointerFromId(idTrack);
 
     if (this->track == track) return;
 
@@ -199,7 +199,7 @@ void WBookmarkTrackPrivate::emitUpdated()
 // Ctor / dtor
 //-------------------------------------------------------------------------------------------------
 
-/* explicit */ WBookmarkTrack::WBookmarkTrack(const WAbstractTrack & track)
+/* explicit */ WBookmarkTrack::WBookmarkTrack(const WTrack & track)
     : WPrivatable(new WBookmarkTrackPrivate(this))
 {
     Q_D(WBookmarkTrack);
@@ -218,7 +218,7 @@ WBookmarkTrack::WBookmarkTrack() : WPrivatable(new WBookmarkTrackPrivate(this))
 // Interface
 //-------------------------------------------------------------------------------------------------
 
-void WBookmarkTrack::setTrack(const WAbstractTrack & track)
+void WBookmarkTrack::setTrack(const WTrack & track)
 {
     Q_D(WBookmarkTrack);
 
@@ -231,11 +231,11 @@ void WBookmarkTrack::setTrack(const WAbstractTrack & track)
 
 //-------------------------------------------------------------------------------------------------
 
-WTrackNet WBookmarkTrack::toTrackNet() const
+WTrack WBookmarkTrack::toTrack() const
 {
     Q_D(const WBookmarkTrack);
 
-    WTrackNet track(d->source);
+    WTrack track(d->source);
 
     track.setState(d->state);
 
@@ -256,7 +256,7 @@ WTrackNet WBookmarkTrack::toTrackNet() const
 
 QVariantMap WBookmarkTrack::toTrackData() const
 {
-    return toTrackNet().toMap();
+    return toTrack().toMap();
 }
 
 //-------------------------------------------------------------------------------------------------
@@ -281,6 +281,8 @@ WBookmarkTrack::WBookmarkTrack(const WBookmarkTrack & other)
 
     *this = other;
 }
+
+//-------------------------------------------------------------------------------------------------
 
 bool WBookmarkTrack::operator==(const WBookmarkTrack & other) const
 {
@@ -368,7 +370,7 @@ WBookmarkTrack & WBookmarkTrack::operator=(const WBookmarkTrack & other)
 }
 
 //-------------------------------------------------------------------------------------------------
-// Protected WAbstractPlaylistWatcher reimplementation
+// Protected WPlaylistWatcher reimplementation
 //-------------------------------------------------------------------------------------------------
 
 /* virtual */ void WBookmarkTrack::endTracksInsert()
@@ -413,7 +415,7 @@ WBookmarkTrack & WBookmarkTrack::operator=(const WBookmarkTrack & other)
 {
     Q_D(WBookmarkTrack);
 
-    const WAbstractTrack * track = d->playlist->trackPointerAt(index);
+    const WTrack * track = d->playlist->trackPointerAt(index);
 
     if (d->track != track) return;
 
@@ -463,17 +465,17 @@ int WBookmarkTrack::id() const
 
 bool WBookmarkTrack::isDefault() const
 {
-    Q_D(const WBookmarkTrack); return (d->state == WAbstractTrack::Default);
+    Q_D(const WBookmarkTrack); return (d->state == WTrack::Default);
 }
 
 bool WBookmarkTrack::isLoading() const
 {
-    Q_D(const WBookmarkTrack); return (d->state == WAbstractTrack::Loading);
+    Q_D(const WBookmarkTrack); return (d->state == WTrack::Loading);
 }
 
 bool WBookmarkTrack::isLoaded() const
 {
-    Q_D(const WBookmarkTrack); return (d->state == WAbstractTrack::Loaded);
+    Q_D(const WBookmarkTrack); return (d->state == WTrack::Loaded);
 }
 
 //-------------------------------------------------------------------------------------------------
@@ -519,12 +521,12 @@ QList<int> WBookmarkTrack::folderIds() const
 
 //-------------------------------------------------------------------------------------------------
 
-WAbstractPlaylist * WBookmarkTrack::playlist() const
+WPlaylist * WBookmarkTrack::playlist() const
 {
     Q_D(const WBookmarkTrack); return d->playlist;
 }
 
-const WAbstractTrack * WBookmarkTrack::track() const
+const WTrack * WBookmarkTrack::track() const
 {
     Q_D(const WBookmarkTrack); return d->track;
 }
@@ -554,7 +556,7 @@ int WBookmarkTrack::idFolderRoot() const
 
 //-------------------------------------------------------------------------------------------------
 
-WAbstractTrack::State WBookmarkTrack::state() const
+WTrack::State WBookmarkTrack::state() const
 {
     Q_D(const WBookmarkTrack); return d->state;
 }

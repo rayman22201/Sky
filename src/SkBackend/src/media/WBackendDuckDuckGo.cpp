@@ -66,10 +66,18 @@ QUrl WBackendDuckDuckGoPrivate::getUrl(const QString & q) const
 
 #ifdef QT_4
     url.addQueryItem("q", search);
+
+    url.addQueryItem("kl", "en-us");
+
+    url.addQueryItem("kp", "-1");
 #else
     QUrlQuery query(url);
 
     query.addQueryItem("q", search);
+
+    query.addQueryItem("kl", "en-us");
+
+    query.addQueryItem("kp", "-1");
 
     url.setQuery(query);
 #endif
@@ -200,6 +208,8 @@ WBackendNetFolder WBackendDuckDuckGo::extractFolder(const QByteArray       & dat
             if (source.isEmpty()) continue;
 
             QString title = WControllerNetwork::extractJsonUtf8(string, "t");
+
+            if (title == "EOF") break;
 
             WLibraryFolderItem folder(WLibraryItem::FolderSearch, WLocalObject::Default);
 

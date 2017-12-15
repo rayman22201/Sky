@@ -43,10 +43,10 @@ public:
 public: // Functions
     void setParentTab(WTabTrack * parent);
 
-    void setPlaylist  (WAbstractPlaylist * playlist);
+    void setPlaylist  (WPlaylist * playlist);
     void clearPlaylist();
 
-    void setTrack  (const WAbstractTrack & track);
+    void setTrack  (const WTrack & track);
     void clearTrack();
 
     void updateTrackPointer();
@@ -58,13 +58,13 @@ public: // Variables
 
     WTabTrack * parentTab;
 
-    WAbstractPlaylist    * playlist;
-    const WAbstractTrack * track;
+    WPlaylist    * playlist;
+    const WTrack * track;
 
     QList<int> idPlaylist;
     int        idTrack;
 
-    WAbstractTrack::State state;
+    WTrack::State state;
 
     QUrl source;
 

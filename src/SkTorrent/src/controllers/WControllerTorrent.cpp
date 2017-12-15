@@ -20,7 +20,6 @@
 
 // Qt includes
 #include <QThread>
-#include <QDeclarativeComponent>
 
 // Sk includes
 #include <WControllerApplication>
@@ -92,14 +91,11 @@ WTorrent::WTorrent(const QUrl & url, int index, Mode mode, QObject * parent) : Q
 
         _progress = eventTorrent->progress;
 
-        if (_download != -1)
-        {
-            _download = eventTorrent->download;
-            _upload   = eventTorrent->upload;
+        _download = eventTorrent->download;
+        _upload   = eventTorrent->upload;
 
-            _seeds = eventTorrent->seeds;
-            _peers = eventTorrent->peers;
-        }
+        _seeds = eventTorrent->seeds;
+        _peers = eventTorrent->peers;
 
         foreach (WTorrentReply * reply, _replies)
         {
@@ -118,6 +114,20 @@ WTorrent::WTorrent(const QUrl & url, int index, Mode mode, QObject * parent) : Q
         foreach (WTorrentReply * reply, _replies)
         {
             emit reply->buffer(_bufferPieces, _bufferBlocks);
+        }
+
+        return true;
+    }
+    else if (type == static_cast<QEvent::Type> (EventSeek))
+    {
+        WTorrentEventSeek * eventTorrent = static_cast<WTorrentEventSeek *> (event);
+
+        _bufferPieces = eventTorrent->bufferPieces;
+        _bufferBlocks = eventTorrent->bufferBlocks;
+
+        foreach (WTorrentReply * reply, _replies)
+        {
+            emit reply->seek(_bufferPieces, _bufferBlocks);
         }
 
         return true;
@@ -316,17 +326,7 @@ WMagnet::WMagnet(const QUrl & url, QObject * parent) : QObject(parent)
     {
         WTorrentEventMagnet * eventMagnet = static_cast<WTorrentEventMagnet *> (event);
 
-        _data = eventMagnet->data;
-
-        if (_data.isEmpty() == false)
-        {
-            wControllerFile->addFile(_url, _data);
-        }
-
-        foreach (WMagnetReply * reply, _replies)
-        {
-            emit reply->loaded(reply);
-        }
+        WControllerTorrentPrivate::applyMagnet(this, eventMagnet->data);
 
         return true;
     }
@@ -409,8 +409,6 @@ WMagnet * WMagnetReply::magnet() const
 // WControllerTorrentPrivate
 //=================================================================================================
 
-#include "WControllerTorrent_p.h"
-
 WControllerTorrentPrivate::WControllerTorrentPrivate(WControllerTorrent * p)
     : WControllerPrivate(p) {}
 
@@ -470,7 +468,7 @@ void WControllerTorrentPrivate::loadTorrent(WTorrentReply * reply, const QUrl   
             }
         }
 
-        foreach (WTorrent * torrent, downloads)
+        foreach (WTorrent * torrent, torrents)
         {
             if (torrent->_url == url && torrent->_mode == WTorrent::Default)
             {
@@ -516,6 +514,8 @@ void WControllerTorrentPrivate::loadTorrent(WTorrentReply * reply, const QUrl   
 
     torrent->_replies.append(reply);
 
+    torrents.append(torrent);
+
     jobs.insert(data, torrent);
 }
 
@@ -559,6 +559,8 @@ void WControllerTorrentPrivate::loadMagnet(WMagnetReply * reply, const QUrl & ur
 
     magnet->_replies.append(reply);
 
+    magnets.append(magnet);
+
     QUrl fileUrl = wControllerFile->getFileUrl(url);
 
     if (fileUrl.isValid())
@@ -571,12 +573,7 @@ void WControllerTorrentPrivate::loadMagnet(WMagnetReply * reply, const QUrl & ur
 
         jobsMagnets.insert(data, magnet);
     }
-    else
-    {
-        magnets.append(magnet);
-
-        engine->loadMagnet(magnet);
-    }
+    else engine->loadMagnet(magnet);
 }
 
 //-------------------------------------------------------------------------------------------------
@@ -597,12 +594,9 @@ void WControllerTorrentPrivate::removeTorrent(WTorrent * torrent, WTorrentReply 
 
         delete data;
     }
-    else
-    {
-        downloads.removeOne(torrent);
+    else engine->remove(torrent);
 
-        engine->remove(torrent);
-    }
+    torrents.removeOne(torrent);
 
     torrent->deleteLater();
 }
@@ -623,12 +617,9 @@ void WControllerTorrentPrivate::removeMagnet(WMagnet * magnet, WMagnetReply * re
 
         delete data;
     }
-    else
-    {
-        magnets.removeOne(magnet);
+    else engine->removeMagnet(magnet);
 
-        engine->removeMagnet(magnet);
-    }
+    magnets.removeOne(magnet);
 
     magnet->deleteLater();
 }
@@ -639,23 +630,38 @@ int WControllerTorrentPrivate::extractIndex(const QUrl & url) const
 {
     QString fragment = url.fragment();
 
-    if (fragment.isEmpty() == false)
+    if (fragment.isEmpty()) return -1;
+
+    fragment = fragment.mid(0, fragment.indexOf('.'));
+
+    int index = fragment.toInt();
+
+    if (index > 0)
     {
-        fragment = fragment.mid(0, fragment.indexOf('.'));
-
-        int index = fragment.toInt();
-
-        if (index > 0)
-        {
-            return index - 1;
-        }
+         return index - 1;
     }
-
-    return -1;
+    else return -1;
 }
 
 //-------------------------------------------------------------------------------------------------
 // Private static functions
+//-------------------------------------------------------------------------------------------------
+
+/* static */ void WControllerTorrentPrivate::applyMagnet(WMagnet * magnet, const QByteArray & data)
+{
+    magnet->_data = data;
+
+    if (data.isEmpty() == false)
+    {
+        wControllerFile->addFile(magnet->_url, data);
+    }
+
+    foreach (WMagnetReply * reply, magnet->_replies)
+    {
+        emit reply->loaded(reply);
+    }
+}
+
 //-------------------------------------------------------------------------------------------------
 
 /* static */ int WControllerTorrentPrivate::listAfter(const QString & text,
@@ -721,7 +727,7 @@ int WControllerTorrentPrivate::extractIndex(const QUrl & url) const
             }
             else if (from == -1)
             {
-                *at = from;
+                *at = -1;
 
                 return -1;
             }
@@ -746,21 +752,14 @@ void WControllerTorrentPrivate::onLoaded(WRemoteData * data)
         qWarning("WControllerTorrentPrivate::onLoaded: Failed to load torrent %s.",
                  data->url().C_URL);
 
-        QString error = data->error();
-
-        torrent->_error = error;
+        torrent->_error = data->error();
 
         foreach (WTorrentReply * reply, torrent->_replies)
         {
             emit reply->loaded(reply);
         }
     }
-    else
-    {
-        downloads.push_back(torrent);
-
-        engine->load(torrent, data->takeReply());
-    }
+    else engine->load(torrent, data->takeReply());
 
     delete data;
 }
@@ -774,16 +773,14 @@ void WControllerTorrentPrivate::onMagnetLoaded(WRemoteData * data)
         qWarning("WControllerTorrentPrivate::onMagnetLoaded: Failed to load magnet %s.",
                  data->url().C_URL);
 
-        QString error = data->error();
-
-        magnet->_error = error;
+        magnet->_error = data->error();
 
         foreach (WMagnetReply * reply, magnet->_replies)
         {
             emit reply->loaded(reply);
         }
     }
-    else QCoreApplication::postEvent(magnet, new WTorrentEventMagnet(data->readAll()));
+    else applyMagnet(magnet, data->readAll());
 
     delete data;
 }
@@ -843,8 +840,6 @@ WControllerTorrent::WControllerTorrent() : WController(new WControllerTorrentPri
 {
     Q_D(WControllerTorrent);
 
-    QList<WTorrentReply *> replies;
-
     QHashIterator<WRemoteData *, WTorrent *> i(d->jobs);
 
     while (i.hasNext())
@@ -853,18 +848,36 @@ WControllerTorrent::WControllerTorrent() : WController(new WControllerTorrentPri
 
         foreach (WTorrentReply * reply, i.value()->_replies)
         {
-            replies.append(reply);
+            delete reply;
         }
     }
 
-    foreach (WTorrent * torrent, d->downloads)
+    QHashIterator<WRemoteData *, WMagnet *> j(d->jobsMagnets);
+
+    while (j.hasNext())
     {
-        replies.append(torrent->_replies);
+        j.next();
+
+        foreach (WMagnetReply * reply, j.value()->_replies)
+        {
+            delete reply;
+        }
     }
 
-    foreach (WTorrentReply * reply, replies)
+    foreach (WTorrent * torrent, d->torrents)
     {
-        delete reply;
+        foreach (WTorrentReply * reply, torrent->_replies)
+        {
+            delete reply;
+        }
+    }
+
+    foreach (WMagnet * magnet, d->magnets)
+    {
+        foreach (WMagnetReply * reply, magnet->_replies)
+        {
+            delete reply;
+        }
     }
 
     d->engine->clearCache();
@@ -969,7 +982,7 @@ WControllerTorrent::WControllerTorrent() : WController(new WControllerTorrentPri
 /* Q_INVOKABLE static */
 WControllerTorrent::Type WControllerTorrent::extractType(const QString & text, int at)
 {
-    if (text.isEmpty())
+    if (at < 0 || at >= text.length())
     {
          return Null;
     }
@@ -1180,18 +1193,18 @@ WControllerTorrent::Type WControllerTorrent::extractType(const QString & text, i
 {
     QStringList list;
 
-    int index  = 0;
-    int length = skipList(text);
+    int index = 0;
+    int at    = skipList(text);
 
-    while (length != text.length())
+    while (at != text.length())
     {
-        QString string = text.mid(index, length - index);
+        QString string = text.mid(index, at - index);
 
         list.append(string);
 
-        index = length;
+        index = at;
 
-        length = skipList(text, index);
+        at = skipList(text, index);
     }
 
     return list;

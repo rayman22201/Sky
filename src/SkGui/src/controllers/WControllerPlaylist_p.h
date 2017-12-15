@@ -59,7 +59,7 @@ public: // Variables
 
     WLibraryItem * item;
 
-    WTrackNet * track;
+    WTrack * track;
 };
 
 //-------------------------------------------------------------------------------------------------
@@ -121,25 +121,24 @@ public:
     void init();
 
 public: // Interface
-    bool applyQueryTrack(WPlaylistNet * playlist,
-                         WTrackNet    * track, const WBackendNetQuery & query);
+    bool applyQueryTrack(WPlaylist * playlist, WTrack * track, const WBackendNetQuery & query);
 
-    bool applyQueryPlaylist(WPlaylistNet   * playlist, const WBackendNetQuery & query);
+    bool applyQueryPlaylist(WPlaylist      * playlist, const WBackendNetQuery & query);
     bool applyQueryFolder  (WLibraryFolder * folder,   const WBackendNetQuery & query);
 
     //---------------------------------------------------------------------------------------------
 
-    bool applySourceTrack(WPlaylistNet * playlist, WTrackNet * track, const QUrl & url);
+    bool applySourceTrack(WPlaylist * playlist, WTrack * track, const QUrl & url);
 
-    bool applySourcePlaylist(WPlaylistNet   * playlist, const QUrl & url);
+    bool applySourcePlaylist(WPlaylist      * playlist, const QUrl & url);
     bool applySourceFolder  (WLibraryFolder * folder,   const QUrl & url);
 
     //---------------------------------------------------------------------------------------------
 
-    bool abortQueryTrack   (WTrackNet    * track);
-    bool abortQueriesTracks(WPlaylistNet * playlist);
+    bool abortQueryTrack   (WTrack    * track);
+    bool abortQueriesTracks(WPlaylist * playlist);
 
-    bool abortQueriesPlaylist(WPlaylistNet   * playlist);
+    bool abortQueriesPlaylist(WPlaylist      * playlist);
     bool abortQueriesFolder  (WLibraryFolder * folder);
 
     bool abortQueriesItem(WLibraryItem * item);
@@ -184,7 +183,7 @@ public: // Functions
                       const QList<WControllerPlaylistSource> & sources,
                       QList<QUrl>                            * urls) const;
 
-    void applyCurrentIndex(WPlaylistNet * playlist) const;
+    void applyCurrentIndex(WPlaylist * playlist) const;
 
     void loadUrls(QIODevice * device, const WBackendNetQuery & query, const char * slot) const;
 
@@ -194,17 +193,17 @@ public: // Functions
 
     //---------------------------------------------------------------------------------------------
 
-    bool getDataTrack(WPlaylistNet * playlist, WTrackNet * track, const WBackendNetQuery & query);
+    bool getDataTrack(WPlaylist * playlist, WTrack * track, const WBackendNetQuery & query);
 
-    bool getDataPlaylist(WPlaylistNet   * playlist, const WBackendNetQuery & query);
+    bool getDataPlaylist(WPlaylist      * playlist, const WBackendNetQuery & query);
     bool getDataFolder  (WLibraryFolder * folder,   const WBackendNetQuery & query);
 
-    bool getDataRelated(WBackendNet * backend, WPlaylistNet * playlist, const QString & id);
+    bool getDataRelated(WBackendNet * backend, WPlaylist * playlist, const QString & id);
 
     //---------------------------------------------------------------------------------------------
 
-    void abortTrack   (WTrackNet      * track);
-    void abortPlaylist(WPlaylistNet   * playlist);
+    void abortTrack   (WTrack         * track);
+    void abortPlaylist(WPlaylist      * playlist);
     void abortFolder  (WLibraryFolder * folder);
 
 public: // Slots

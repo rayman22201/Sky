@@ -14,8 +14,8 @@
 */
 //=================================================================================================
 
-#ifndef WABSTRACTPLAYLIST_P_H
-#define WABSTRACTPLAYLIST_P_H
+#ifndef WPLAYLIST_P_H
+#define WPLAYLIST_P_H
 
 /*  W A R N I N G
     -------------
@@ -29,25 +29,36 @@
 
 #include <private/WLibraryItem_p>
 
-#ifndef SK_NO_ABSTRACTPLAYLIST
+#ifndef SK_NO_PLAYLIST
 
-class SK_GUI_EXPORT WAbstractPlaylistPrivate : public WLibraryItemPrivate
+class SK_GUI_EXPORT WPlaylistPrivate : public WLibraryItemPrivate
 {
 public:
-    WAbstractPlaylistPrivate(WAbstractPlaylist * p);
+    WPlaylistPrivate(WPlaylist * p);
 
-    /* virtual */ ~WAbstractPlaylistPrivate();
+    /* virtual */ ~WPlaylistPrivate();
 
     void init();
 
 public: // Function
+    const WTrack * itemFromId(int id)    const;
+    const WTrack * itemAt    (int index) const;
+
+    WTrack * getTrack(int index);
+
+    void loadTracks(const QList<WTrack> & tracks);
+
+    bool loadTrack(int index);
+
+    bool loadCover(WTrack * track);
+
     void setPrevious(bool cycle);
     void setNext    (bool cycle);
 
     bool hasPrevious(int index) const;
     bool hasNext    (int index) const;
 
-    bool insertSelected(const QList<int> & indexes, const WAbstractTrack * track, int index);
+    bool insertSelected(const QList<int> & indexes, const WTrack * track, int index);
 
     QList<int> getSelected() const;
 
@@ -56,7 +67,11 @@ public: // Function
     void emitSelectedTracksChanged(const QList<int> & indexes);
 
 public: // Variables
-    const WAbstractTrack * currentTrack;
+    QList<WTrack> tracks;
+
+    WListId ids;
+
+    const WTrack * currentTrack;
 
     int currentIndex;
     int currentTime;
@@ -65,13 +80,15 @@ public: // Variables
 
     int maxCount;
 
-    QList<const WAbstractTrack *> selectedTracks;
+    QList<const WTrack *> selectedTracks;
 
-    QList<WAbstractPlaylistWatcher *> watchers;
+    QList<WPlaylistWatcher *> watchers;
 
 protected:
-    W_DECLARE_PUBLIC(WAbstractPlaylist)
+    W_DECLARE_PUBLIC(WPlaylist)
+
+    friend class WPlaylistReadReply;
 };
 
-#endif // SK_NO_ABSTRACTPLAYLIST
-#endif // WABSTRACTPLAYLIST_P_H
+#endif // SK_NO_PLAYLIST
+#endif // WPLAYLIST_P_H

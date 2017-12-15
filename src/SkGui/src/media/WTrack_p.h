@@ -14,8 +14,8 @@
 */
 //=================================================================================================
 
-#ifndef WPLAYLISTNET_P_H
-#define WPLAYLISTNET_P_H
+#ifndef WTRACK_P_H
+#define WTRACK_P_H
 
 /*  W A R N I N G
     -------------
@@ -27,42 +27,41 @@
     We mean it.
 */
 
-#include <private/WAbstractPlaylist_p>
+#include <private/Sk_p>
 
-#ifndef SK_NO_PLAYLISTNET
+#ifndef SK_NO_TRACK
 
-// Forward declarations
-class WTrackNet;
-class WThreadActionWritePlaylist;
-class WThreadActionReadPlaylist;
-
-class SK_GUI_EXPORT WPlaylistNetPrivate : public WAbstractPlaylistPrivate
+class SK_GUI_EXPORT WTrackPrivate : public WPrivate
 {
-public:
-    WPlaylistNetPrivate(WPlaylistNet * p);
+protected:
+    WTrackPrivate(WTrack * p);
 
     void init();
 
-public: // Functions
-    WTrackNet * getTrack(int index);
-
-    bool containsTrackPointer(WTrackNet * track) const;
-
-    void loadTracks(const QList<WTrackNet> & tracks);
-
-    void loadTrack(WTrackNet * track, int index);
-    void loadCover(WTrackNet * track);
-
 public: // Variables
-    QList<WTrackNet> tracks;
+    int id;
 
-    WListId ids;
+    WTrack::State state;
+
+    QUrl source;
+
+    QString title;
+    QUrl    cover;
+
+    QString author;
+    QString feed;
+
+    int duration;
+
+    QDateTime date;
+
+    WAbstractBackend::Quality quality;
+
+    WPlaylist * playlist;
 
 protected:
-    W_DECLARE_PUBLIC(WPlaylistNet)
-
-    friend class WPlaylistNetReadReply;
+    W_DECLARE_PUBLIC(WTrack)
 };
 
-#endif // SK_NO_PLAYLISTNET
-#endif // WPLAYLISTNET_P_H
+#endif // SK_NO_TRACK
+#endif // WTRACK_P_H

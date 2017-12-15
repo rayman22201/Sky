@@ -41,7 +41,7 @@ public:
     void init();
 
 public: // Functions
-    void loadTrack(WTrackNet * track, const QString & json) const;
+    void loadTrack(WTrack * track, const QString & json) const;
 
     bool extractId(const QString & data, const WBackendNetQuery & query,
                                          WBackendNetQuery       * nextQuery) const;
@@ -77,7 +77,7 @@ void WBackendSoundCloudPrivate::init() {}
 // Private functions
 //-------------------------------------------------------------------------------------------------
 
-void WBackendSoundCloudPrivate::loadTrack(WTrackNet * track, const QString & json) const
+void WBackendSoundCloudPrivate::loadTrack(WTrack * track, const QString & json) const
 {
     QString title = WControllerNetwork::extractJsonUtf8(json, "title");
     QString cover = WControllerNetwork::extractJson    (json, "artwork_url");
@@ -434,7 +434,7 @@ WBackendNetPlaylistInfo WBackendSoundCloud::getPlaylistInfo(const QUrl & url) co
     {
         if (source.contains("/sets/"))
         {
-             return WBackendNetPlaylistInfo(WLibraryItem::PlaylistNet, source);
+             return WBackendNetPlaylistInfo(WLibraryItem::Playlist, source);
         }
         else return WBackendNetPlaylistInfo();
     }
@@ -623,7 +623,7 @@ WBackendNetPlaylist WBackendSoundCloud::extractPlaylist(const QByteArray       &
 
             feed = WControllerNetwork::extractJson(feed, "permalink");
 
-            WTrackNet track("https://soundcloud.com/" + feed + '/' + source);
+            WTrack track("https://soundcloud.com/" + feed + '/' + source);
 
             d->loadTrack(&track, string);
 
@@ -632,7 +632,7 @@ WBackendNetPlaylist WBackendSoundCloud::extractPlaylist(const QByteArray       &
     }
     else if (id == 1) // playlist
     {
-        QString json = d->extractJson(content, 80, 3);
+        QString json = d->extractJson(content, 77, 2);
 
         QString idPlaylist = WControllerNetwork::extractJsonUtf8(json, "id");
 
@@ -740,7 +740,7 @@ WBackendNetFolder WBackendSoundCloud::extractFolder(const QByteArray       & dat
 
             d->applyCover(&cover);
 
-            WLibraryFolderItem playlist(WLibraryItem::PlaylistNet, WLibraryItem::Default);
+            WLibraryFolderItem playlist(WLibraryItem::Playlist, WLibraryItem::Default);
 
             playlist.source = source;
 

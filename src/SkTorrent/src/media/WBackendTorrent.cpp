@@ -24,6 +24,9 @@
 #include <WControllerPlaylist>
 #include <WControllerTorrent>
 
+// Private include
+#include <private/WBackendNet_p>
+
 //=================================================================================================
 // WBackendTorrentItem
 //=================================================================================================
@@ -40,14 +43,12 @@ struct WBackendTorrentItem
 
 inline bool sort(const WBackendTorrentItem & itemA, const WBackendTorrentItem & itemB)
 {
-    return itemA.name < itemB.name;
+    return (itemA.name < itemB.name);
 }
 
 //=================================================================================================
 // WBackendTorrentPrivate
 //=================================================================================================
-
-#include <private/WBackendNet_p>
 
 class SK_TORRENT_EXPORT WBackendTorrentPrivate : public WBackendNetPrivate
 {
@@ -59,9 +60,9 @@ public:
 public: // Functions
     QList<WBackendTorrentItem> extractItems(const QString & data) const;
 
-    int extractString(QString * string, const QString & data, int at) const;
-
     int extractItem(WBackendTorrentItem * item, const QString & data, int at) const;
+
+    int extractString(QString * string, const QString & data, int at) const;
 
     QList<WBackendTorrentItem> getFolder(QList<WBackendTorrentItem> * items) const;
 
@@ -135,27 +136,6 @@ QList<WBackendTorrentItem> WBackendTorrentPrivate::extractItems(const QString & 
 
 //-------------------------------------------------------------------------------------------------
 
-int WBackendTorrentPrivate::extractString(QString * string, const QString & data, int at) const
-{
-    int index = data.indexOf(':', at);
-
-    if (index == -1) return -1;
-
-    int length = data.mid(at, index - at).toInt();
-
-    if (length == 0) return -1;
-
-    index++;
-
-    if (length)
-    {
-        *string = data.mid(index, length);
-
-        return index + length;
-    }
-    else return index;
-}
-
 int WBackendTorrentPrivate::extractItem(WBackendTorrentItem * item, const QString & data,
                                                                     int             at) const
 {
@@ -190,6 +170,23 @@ int WBackendTorrentPrivate::extractItem(WBackendTorrentItem * item, const QStrin
     }
 
     return at;
+}
+
+int WBackendTorrentPrivate::extractString(QString * string, const QString & data, int at) const
+{
+    int index = data.indexOf(':', at);
+
+    if (index == -1) return -1;
+
+    int length = data.mid(at, index - at).toInt();
+
+    if (length == 0) return -1;
+
+    index++;
+
+    *string = data.mid(index, length);
+
+    return index + length;
 }
 
 //-------------------------------------------------------------------------------------------------
@@ -290,7 +287,7 @@ WBackendNetPlaylistInfo WBackendTorrent::getPlaylistInfo(const QUrl & url) const
 {
     if (checkValidUrl(url))
     {
-         return WBackendNetPlaylistInfo(WLibraryItem::PlaylistNet, url.toString());
+         return WBackendNetPlaylistInfo(WLibraryItem::Playlist, url.toString());
     }
     else return WBackendNetPlaylistInfo();
 }
@@ -306,12 +303,6 @@ QUrl WBackendTorrent::getUrlPlaylist(const WBackendNetPlaylistInfo & info) const
 //-------------------------------------------------------------------------------------------------
 
 /* Q_INVOKABLE virtual */
-WBackendNetQuery WBackendTorrent::getQuerySource(const QUrl &) const
-{
-    return WBackendNetQuery();
-}
-
-/* Q_INVOKABLE virtual */
 WBackendNetQuery WBackendTorrent::getQueryPlaylist(const QUrl & url) const
 {
     WBackendNetQuery query;
@@ -322,10 +313,20 @@ WBackendNetQuery WBackendTorrent::getQueryPlaylist(const QUrl & url) const
     {
         query.type = WBackendNetQuery::TypeTorrent;
     }
+    else if (WControllerNetwork::extractUrlExtension(source) != "torrent")
+    {
+        return query;
+    }
 
     int index = source.indexOf('#');
 
-    if (index != -1)
+    if (index == -1)
+    {
+        query.url = url;
+
+        query.data = -1;
+    }
+    else
     {
         QString number;
 
@@ -341,12 +342,6 @@ WBackendNetQuery WBackendTorrent::getQueryPlaylist(const QUrl & url) const
         query.url = WControllerNetwork::encodedUrl(source.mid(0, index));
 
         query.data = number.toInt();
-    }
-    else
-    {
-        query.url = WControllerNetwork::encodedUrl(source);
-
-        query.data = -1;
     }
 
     return query;
@@ -406,8 +401,9 @@ WBackendNetPlaylist WBackendTorrent::extractPlaylist(const QByteArray       & da
         items.append(item);
     }
 
-    QList<WTrackNet> tracks;
-    QList<int>       ids;
+    QList<WTrack> * tracks = &(reply.tracks);
+
+    QList<int> ids;
 
     QString url = query.url.toString();
 
@@ -429,14 +425,14 @@ WBackendNetPlaylist WBackendTorrent::extractPlaylist(const QByteArray       & da
 
                 QString source = url + '#' + QString::number(id) + '.' + extension;
 
-                WTrackNet track(WControllerNetwork::encodedUrl(source), WAbstractTrack::Default);
+                WTrack track(WControllerNetwork::encodedUrl(source), WTrack::Default);
 
                 track.setTitle(title);
 
                 track.setAuthor(name);
                 track.setFeed  (url);
 
-                tracks.append(track);
+                tracks->append(track);
 
                 ids.append(id);
             }
@@ -444,8 +440,6 @@ WBackendNetPlaylist WBackendTorrent::extractPlaylist(const QByteArray       & da
     }
 
     reply.title = name;
-
-    reply.tracks = tracks;
 
     reply.cache = data;
 

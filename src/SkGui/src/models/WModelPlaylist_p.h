@@ -14,23 +14,30 @@
 */
 //=================================================================================================
 
-#ifndef WTRACKNET_P_H
-#define WTRACKNET_P_H
+#ifndef WMODELPLAYLISTWEB_P_H
+#define WMODELPLAYLISTWEB_P_H
 
-#include <private/WAbstractTrack_p>
+#include <private/Sk_p>
 
-#ifndef SK_NO_TRACKNET
+#ifndef SK_NO_MODELPLAYLISTWEB
 
-class SK_GUI_EXPORT WTrackNetPrivate : public WAbstractTrackPrivate
+class SK_GUI_EXPORT WModelPlaylistPrivate : public WPrivate
 {
 public:
-    WTrackNetPrivate(WTrackNet * p);
+    WModelPlaylistPrivate(WModelPlaylist * p);
+
+    /* virtual */ ~WModelPlaylistPrivate();
 
     void init();
 
+public: // Variables
+    WPlaylist * playlist;
+
+    const WTrack * oldTrack;
+
 protected:
-    W_DECLARE_PUBLIC(WTrackNet)
+    W_DECLARE_PUBLIC(WModelPlaylist)
 };
 
-#endif // SK_NO_TRACKNET
-#endif // WTRACKNET_P_H
+#endif // SK_NO_MODELPLAYLISTWEB
+#endif // WMODELPLAYLISTWEB_P_H

@@ -20,20 +20,15 @@
 // Qt includes
 #include <QNetworkRequest>
 #include <QDateTime>
-#include <QUrl>
 
 // Sk includes
-#include <WAbstractBackend>
 #include <WLibraryFolder>
-#include <WTrackNet>
+#include <WTrack>
 
 #ifndef SK_NO_BACKENDNET
 
 // Forward declarations
 class WBackendNetPrivate;
-class WTrackNet;
-class WPlaylistNet;
-class WLibraryFolder;
 
 //-------------------------------------------------------------------------------------------------
 // WBackendNetQuery
@@ -94,7 +89,7 @@ public: // Variables
 class SK_GUI_EXPORT WBackendNetPlaylistInfo
 {
 public:
-    explicit WBackendNetPlaylistInfo(WLibraryItem::Type type = WLibraryItem::PlaylistNet,
+    explicit WBackendNetPlaylistInfo(WLibraryItem::Type type = WLibraryItem::Playlist,
                                      QString            id   = QString());
 public: // Interface
     bool isValid() const;
@@ -156,7 +151,7 @@ public:
     WBackendNetTrack();
 
 public: // Variables
-    WTrackNet track;
+    WTrack track;
 };
 
 //-------------------------------------------------------------------------------------------------
@@ -172,7 +167,7 @@ public: // Variables
     QString title;
     QUrl    cover;
 
-    QList<WTrackNet> tracks;
+    QList<WTrack> tracks;
 
     int currentIndex;
 

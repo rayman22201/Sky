@@ -29,7 +29,7 @@
 #include <WControllerPlaylist>
 #include <WAbstractTabs>
 #include <WAbstractThreadAction>
-#include <WPlaylistNet>
+#include <WPlaylist>
 #include <WDeclarativePlayer>
 #include <WPixmapCache>
 
@@ -418,7 +418,7 @@ bool WTabTrackRead::load(QXmlStreamReader * stream, WTabTrackReadReply * reply)
 
         if (wControllerXml->readNextStartElement(stream, "state") == false) return false;
 
-        data.state = static_cast<WAbstractTrack::State> (wControllerXml->readNextInt(stream));
+        data.state = static_cast<WTrack::State> (wControllerXml->readNextInt(stream));
 
         //-----------------------------------------------------------------------------------------
         // source
@@ -717,7 +717,7 @@ void WTabTrackPrivate::setCurrentBookmark(WBookmarkTrack * bookmark)
 
 //-------------------------------------------------------------------------------------------------
 
-bool WTabTrackPrivate::setPlaylist(WAbstractPlaylist * playlist)
+bool WTabTrackPrivate::setPlaylist(WPlaylist * playlist)
 {
     Q_Q(WTabTrack);
 
@@ -767,11 +767,11 @@ void WTabTrackPrivate::applyPlaylist(WBookmarkTrack * bookmark)
 {
     WBookmarkTrackPrivate * p = bookmark->d_func();
 
-    WAbstractPlaylist * playlist = p->playlist;
+    WPlaylist * playlist = p->playlist;
 
     if (playlist)
     {
-        const WAbstractTrack * track = p->track;
+        const WTrack * track = p->track;
 
         if (hasFocus && track)
         {
@@ -800,13 +800,13 @@ void WTabTrackPrivate::updatePlaylist(WBookmarkTrack * bookmark)
 {
     WBookmarkTrackPrivate * p = bookmark->d_func();
 
-    WAbstractPlaylist * playlist = p->playlist;
+    WPlaylist * playlist = p->playlist;
 
     if (playlist)
     {
         if (hasFocus)
         {
-            const WAbstractTrack * track = p->track;
+            const WTrack * track = p->track;
 
             if (track)
             {
@@ -834,7 +834,7 @@ void WTabTrackPrivate::clearPlaylist()
 
 //-------------------------------------------------------------------------------------------------
 
-void WTabTrackPrivate::setTrack(const WAbstractTrack * track)
+void WTabTrackPrivate::setTrack(const WTrack * track)
 {
     if (track == NULL) return;
 
@@ -892,7 +892,7 @@ void WTabTrackPrivate::saveState()
 
     p->currentTime = time;
 
-    WAbstractPlaylist * playlist = p->playlist;
+    WPlaylist * playlist = p->playlist;
 
     if (playlist) playlist->setCurrentTime(time);
 
@@ -936,7 +936,7 @@ void WTabTrackPrivate::onFocusChanged()
 
     if (hasFocus)
     {
-        const WAbstractTrack * track = NULL;
+        const WTrack * track = NULL;
 
         if (currentBookmark) track = currentBookmark->track();
 
@@ -953,7 +953,7 @@ void WTabTrackPrivate::onFocusChanged()
 
 void WTabTrackPrivate::onCurrentTrackChanged()
 {
-    const WAbstractTrack * track = playlist->currentTrackPointer();
+    const WTrack * track = playlist->currentTrackPointer();
 
     setTrack(track);
 }
@@ -1001,7 +1001,7 @@ void WTabTrackPrivate::onFilesUpdated(const QList<int> & idFull)
 
         if (checkId(idFull, p->idPlaylist))
         {
-            WAbstractPlaylist * playlist = p->playlist;
+            WPlaylist * playlist = p->playlist;
 
             if (playlist)
             {
@@ -1223,7 +1223,7 @@ void WTabTrackPrivate::onPlaylistDestroyed()
 
     setCurrentTime(-1);
 
-    const WAbstractTrack * track = d->playlist->trackPointerAt(index);
+    const WTrack * track = d->playlist->trackPointerAt(index);
 
     setCurrentTrackPointer(track);
 }
@@ -1272,14 +1272,14 @@ void WTabTrackPrivate::onPlaylistDestroyed()
 
     setCurrentTime(-1);
 
-    const WAbstractTrack * track = d->playlist->trackPointerAt(index);
+    const WTrack * track = d->playlist->trackPointerAt(index);
 
     setCurrentTrackPointer(track);
 }
 
 //-------------------------------------------------------------------------------------------------
 
-/* Q_INVOKABLE */ const WAbstractTrack * WTabTrack::currentTrackPointer() const
+/* Q_INVOKABLE */ const WTrack * WTabTrack::currentTrackPointer() const
 {
     Q_D(const WTabTrack);
 
@@ -1290,7 +1290,7 @@ void WTabTrackPrivate::onPlaylistDestroyed()
     else return NULL;
 }
 
-/* Q_INVOKABLE */ void WTabTrack::setCurrentTrackPointer(const WAbstractTrack * track)
+/* Q_INVOKABLE */ void WTabTrack::setCurrentTrackPointer(const WTrack * track)
 {
     Q_D(WTabTrack);
 
@@ -1309,7 +1309,7 @@ void WTabTrackPrivate::onPlaylistDestroyed()
 
 //-------------------------------------------------------------------------------------------------
 
-/* Q_INVOKABLE */ void WTabTrack::copyTrackTo(WPlaylistNet * destination, int to)
+/* Q_INVOKABLE */ void WTabTrack::copyTrackTo(WPlaylist * destination, int to)
 {
     Q_ASSERT(destination);
 
@@ -1317,7 +1317,7 @@ void WTabTrackPrivate::onPlaylistDestroyed()
 
     if (d->currentBookmark == NULL) return;
 
-    WTrackNet track = d->currentBookmark->toTrackNet();
+    WTrack track = d->currentBookmark->toTrack();
 
     if (track.isValid() == false) return;
 
@@ -1476,12 +1476,12 @@ const WBookmarkTrack * WTabTrack::currentBookmark() const
 
 //-------------------------------------------------------------------------------------------------
 
-WAbstractPlaylist * WTabTrack::playlist() const
+WPlaylist * WTabTrack::playlist() const
 {
     Q_D(const WTabTrack); return d->playlist;
 }
 
-void WTabTrack::setPlaylist(WAbstractPlaylist * playlist)
+void WTabTrack::setPlaylist(WPlaylist * playlist)
 {
     Q_D(WTabTrack);
 
@@ -1526,7 +1526,7 @@ int WTabTrack::trackIndex() const
 
     if (d->playlist && d->currentBookmark)
     {
-        const WAbstractTrack * track = d->currentBookmark->track();
+        const WTrack * track = d->currentBookmark->track();
 
         if (track)
         {
@@ -1543,7 +1543,7 @@ void WTabTrack::setTrackIndex(int index)
 
     if (d->playlist == NULL) return;
 
-    const WAbstractTrack * track = d->playlist->trackPointerAt(index);
+    const WTrack * track = d->playlist->trackPointerAt(index);
 
     if (track) setCurrentTrackPointer(track);
 }
@@ -1748,7 +1748,7 @@ QVariantMap WTabTrack::trackData() const
 
 //-------------------------------------------------------------------------------------------------
 
-WAbstractTrack::State WTabTrack::state() const
+WTrack::State WTabTrack::state() const
 {
     Q_D(const WTabTrack);
 
@@ -1756,7 +1756,7 @@ WAbstractTrack::State WTabTrack::state() const
     {
          return d->currentBookmark->state();
     }
-    else return WAbstractTrack::Default;
+    else return WTrack::Default;
 }
 
 //-------------------------------------------------------------------------------------------------
@@ -1847,7 +1847,7 @@ void WTabTrack::setDuration(int msec)
 
     if (msec > 0 && p->playlist)
     {
-        WPlaylistNet * playlist = p->playlist->toPlaylistNet();
+        WPlaylist * playlist = p->playlist->toPlaylist();
 
         int index = playlist->indexOf(p->track);
 

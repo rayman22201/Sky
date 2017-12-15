@@ -22,7 +22,7 @@
 #include <WControllerNetwork>
 #include <WControllerPlaylist>
 #include <WBackendNet>
-#include <WPlaylistNet>
+#include <WPlaylist>
 
 //-------------------------------------------------------------------------------------------------
 // Static variables
@@ -59,7 +59,7 @@ void WLibraryFolderRelatedPrivate::init()
 // Interface
 //-------------------------------------------------------------------------------------------------
 
-/* Q_INVOKABLE */ void WLibraryFolderRelated::loadTracks(const WTrackNet & track)
+/* Q_INVOKABLE */ void WLibraryFolderRelated::loadTracks(const WTrack & track)
 {
     Q_D(WLibraryFolderRelated);
 
@@ -73,7 +73,7 @@ void WLibraryFolderRelatedPrivate::init()
     {
         d->currentItem->reloadQuery();
 
-        WPlaylistNet * playlist = d->currentItem->toPlaylistNet();
+        WPlaylist * playlist = d->currentItem->toPlaylist();
 
         if (playlist && playlist->containsSource(trackSource) == false)
         {
@@ -115,7 +115,7 @@ void WLibraryFolderRelatedPrivate::init()
         removeAt(0);
     }
 
-    WPlaylistNet * playlist = new WPlaylistNet;
+    WPlaylist * playlist = new WPlaylist;
 
     playlist->setLabel(label);
 
@@ -138,13 +138,13 @@ void WLibraryFolderRelatedPrivate::init()
 
 /* Q_INVOKABLE */ void WLibraryFolderRelated::loadTracks(const QVariantMap & data)
 {
-    WTrackNet track(WControllerNetwork::encodedUrl(data.value("source").toString()));
+    WTrack track(WControllerNetwork::encodedUrl(data.value("source").toString()));
 
-    WAbstractTrack::State state = static_cast<WAbstractTrack::State> (data.value("state").toInt());
+    WTrack::State state = static_cast<WTrack::State> (data.value("state").toInt());
 
-    if (state == WAbstractTrack::Loading)
+    if (state == WTrack::Loading)
     {
-         track.setState(WAbstractTrack::Default);
+         track.setState(WTrack::Default);
     }
     else track.setState(state);
 

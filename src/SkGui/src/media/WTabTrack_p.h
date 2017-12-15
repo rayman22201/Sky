@@ -50,7 +50,7 @@ struct WTabTrackDataBookmark
     QList<int> idPlaylist;
     int        idTrack;
 
-    WAbstractTrack::State state;
+    WTrack::State state;
 
     QUrl source;
 
@@ -94,14 +94,14 @@ public: // Functions
 
     void setCurrentBookmark(WBookmarkTrack * bookmark);
 
-    bool setPlaylist(WAbstractPlaylist * playlist);
+    bool setPlaylist(WPlaylist * playlist);
 
     void applyPlaylist (WBookmarkTrack * bookmark);
     void updatePlaylist(WBookmarkTrack * bookmark);
 
     void clearPlaylist();
 
-    void setTrack(const WAbstractTrack * track);
+    void setTrack(const WTrack * track);
 
     void setVideoShot(WBookmarkTrack * bookmark, const QUrl & url);
 
@@ -126,7 +126,7 @@ public: // Variables
 
     QHash<int, QPair<QString, QPixmap> > videoShots;
 
-    WAbstractPlaylist  * playlist;
+    WPlaylist          * playlist;
     WDeclarativePlayer * player;
 
     WBookmarkTrack * currentBookmark;

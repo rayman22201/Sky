@@ -66,6 +66,8 @@ public: // Functions
     void play();
     void stop();
 
+    void applyBuffer(qint64 bufferBlocks);
+
     void clearReply();
     void clearData ();
 
@@ -74,6 +76,7 @@ public: // Slots
     void onLoaded();
 
     void onBuffer(qint64 bufferPieces, qint64 bufferBlocks);
+    void onSeek  (qint64 bufferPieces, qint64 bufferBlocks);
 
     void onDestroyed();
 
@@ -93,12 +96,11 @@ public: // Variables
 
     int currentTime;
 
-    bool retry;
-
     QMetaMethod methodFile;
     QMetaMethod methodBuffer;
-    QMetaMethod methodStart;
     QMetaMethod methodSeek;
+    QMetaMethod methodStart;
+    QMetaMethod methodSkip;
     QMetaMethod methodClear;
 
 protected:

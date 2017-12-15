@@ -41,9 +41,9 @@ protected:
     void init();
 
 public: // Functions
-    void applyPlaylist(WPlaylistNet * playlist);
+    void applyPlaylist(WPlaylist * playlist);
 
-    void setPlaylist(WPlaylistNet * playlist);
+    void setPlaylist(WPlaylist * playlist);
 
     void setTab(WTabTrack * tab);
 
@@ -56,7 +56,7 @@ public: // Functions
     void resetShuffle();
     void clearShuffle();
 
-    void setShuffleTrack(const WAbstractTrack * track);
+    void setShuffleTrack(const WTrack * track);
 
     void clearPlaylistAndTabs();
 
@@ -90,7 +90,7 @@ public: // Variables
     WAbstractBackend::State state;
 
     WLibraryFolder * folder;
-    WPlaylistNet   * playlist;
+    WPlaylist      * playlist;
 
     qreal speed;
 
@@ -98,10 +98,10 @@ public: // Variables
 
     bool shuffle;
 
-    QList<const WAbstractTrack *> shuffleTracks;
-    QList<const WAbstractTrack *> shuffleHistory;
-    int                           shuffleIndex;
-    bool                          shuffleLock;
+    QList<const WTrack *> shuffleTracks;
+    QList<const WTrack *> shuffleHistory;
+    int                   shuffleIndex;
+    bool                  shuffleLock;
 
     WDeclarativePlayer::Repeat repeat;
 
