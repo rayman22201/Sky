@@ -113,22 +113,35 @@ if [ $1 = "qt4" -a $2 = "linux" ]; then
 
 elif [ $1 = "qt5" ]; then
 
-    mkdir -p include/Qt/QtCore/private
-
-    cp "$Qt5"/include/QtCore/* include/Qt/QtCore
-
-    cp "$Qt5"/include/QtCore/$Qt5_version/QtCore/private/* include/Qt/QtCore/private
-
-    mkdir -p include/Qt/QtDeclarative/private
-
-    cp "$Qt5"/include/QtDeclarative/* include/Qt/QtDeclarative
-
-    cp "$Qt5"/include/QtDeclarative/$Qt5_version/QtDeclarative/private/* \
-        include/Qt/QtDeclarative/private
 
     if [ $2 = "osx" ]; then
+      Qt5=/usr/local/opt/qt\@5.5
 
-        Qt5=/usr/local/opt/qt\@5.5
+      mkdir -p include/Qt/QtCore/private
+
+      ditto "$Qt5"/include/QtCore/* include/Qt/QtCore
+
+      ditto "$Qt5"/include/QtCore/$Qt5_version/QtCore/private/* include/Qt/QtCore/private
+
+      mkdir -p include/Qt/QtDeclarative/private
+
+      ditto "$Qt5"/include/QtDeclarative/* include/Qt/QtDeclarative
+
+      ditto "$Qt5"/include/QtDeclarative/$Qt5_version/QtDeclarative/private/* \
+          include/Qt/QtDeclarative/private
+    else 
+      mkdir -p include/Qt/QtCore/private
+
+      cp "$Qt5"/include/QtCore/* include/Qt/QtCore
+
+      cp "$Qt5"/include/QtCore/$Qt5_version/QtCore/private/* include/Qt/QtCore/private
+
+      mkdir -p include/Qt/QtDeclarative/private
+
+      cp "$Qt5"/include/QtDeclarative/* include/Qt/QtDeclarative
+
+      cp "$Qt5"/include/QtDeclarative/$Qt5_version/QtDeclarative/private/* \
+          include/Qt/QtDeclarative/private
     fi
 fi
 
@@ -148,9 +161,9 @@ elif [ $2 = "osx" ]; then
 
     echo "COPYING VLC"
 
-    cp -r /Applications/VLC.app/Contents/MacOS/include include
+    ditto /Applications/VLC.app/Contents/MacOS/include include
 
-    cp -r /Applications/VLC.app/Contents/MacOS/lib lib
+    ditto /Applications/VLC.app/Contents/MacOS/lib lib
 fi
 
 #--------------------------------------------------------------------------------------------------
@@ -169,9 +182,9 @@ elif [ $2 = "osx" ]; then
 
     echo "COPYING libtorrent"
 
-    cp -r /usr/local/include/libtorrent include
+    ditto /usr/local/include/libtorrent include/libtorrent
 
-    cp /usr/local/lib/libtorrent-* lib
+    ditto /usr/local/lib/libtorrent-* lib
 fi
 
 #--------------------------------------------------------------------------------------------------
@@ -190,7 +203,7 @@ elif [ $2 = "osx" ]; then
 
     echo "COPYING Boost"
 
-    cp -r /usr/local/opt/boost\@1.55/include include
+    ditto /usr/local/opt/boost\@1.55/include include
 
-    cp -r /usr/local/opt/boost\@1.55/lib lib
+    ditto /usr/local/opt/boost\@1.55/lib lib
 fi
